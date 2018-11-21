@@ -42,8 +42,15 @@ class Exploit(Exploit):
         self.creds = []
         self.not_verified = []
 
+        print("")
+
         # vulnerabilities
         print_info()
+        print("input the condtion : (+,-,*) choose one of three ")
+        cond = input()
+        dic = {}
+        dic['condition'] = cond
+        
         print_info("\033[94m[*]\033[0m", "Starting vulnerablity check...".format(self.target))
 
         modules = []
@@ -52,7 +59,7 @@ class Exploit(Exploit):
                 modules.append(module)
 
         data = LockedIterator(modules)
-        self.run_threads(self.threads, self.exploits_target_function, data)
+        self.run_threads(self.threads, self.exploits_target_function, data, dic)
 
         # default creds
         print_info()
@@ -63,7 +70,7 @@ class Exploit(Exploit):
                 modules.append(module)
 
         data = LockedIterator(modules)
-        self.run_threads(self.threads, self.creds_target_function, data)
+        self.run_threads(self.threads, self.creds_target_function, data, dic)
 
         # results:
         print_info()
@@ -89,7 +96,7 @@ class Exploit(Exploit):
         else:
             print_info("\033[91m[-]\033[0m", "{} Could not find default credentials".format(self.target))
 
-    def exploits_target_function(self, running, data):
+    def exploits_target_function(self, running, data, dic):
         while running.is_set():
             try:
                 module = data.next()
@@ -119,19 +126,20 @@ class Exploit(Exploit):
 
                 response = exploit.check()
 
-                if response is True:
+                if response is True and dic['condition'] == "+":
                     print_info("\033[92m[+]\033[0m", "{}:{} {} {} is vulnerable".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
                     self.vulnerabilities.append((exploit.target, exploit.port, exploit.target_protocol, str(exploit)))
-                elif response is False:
+                elif response is False and dic['condition'] == "-":
                     print_info("\033[91m[-]\033[0m", "{}:{} {} {} is not vulnerable".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
                 else:
-                    print_info("\033[94m[*]\033[0m", "{}:{} {} {} Could not be verified".format(
+                    if dic['condition'] == "*": 
+                    	print_info("\033[94m[*]\033[0m", "{}:{} {} {} Could not be verified".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
-                    self.not_verified.append((exploit.target, exploit.port, exploit.target_protocol, str(exploit)))
+                    	self.not_verified.append((exploit.target, exploit.port, exploit.target_protocol, str(exploit)))
 
-    def creds_target_function(self, running, data):
+    def creds_target_function(self, running, data, dic):
         while running.is_set():
             try:
                 module = data.next()
@@ -178,12 +186,13 @@ class Exploit(Exploit):
                     continue
 
                 response = exploit.check_default()
-                if response:
+                if response and dic['condition'] == "+":
                     print_info("\033[92m[+]\033[0m", "{}:{} {} {} is vulnerable".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
 
                     for creds in response:
                         self.creds.append(creds)
                 else:
-                    print_info("\033[91m[-]\033[0m", "{}:{} {} {} is not vulnerable".format(
+                    if dic['condition'] == "-":
+                    	print_info("\033[91m[-]\033[0m", "{}:{} {} {} is not vulnerable".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
