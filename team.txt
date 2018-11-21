@@ -1,0 +1,2 @@
+I am person Ki ra seong
+revise autopwn.py function
