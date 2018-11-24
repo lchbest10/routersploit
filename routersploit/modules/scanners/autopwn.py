@@ -46,11 +46,11 @@ class Exploit(Exploit):
 
         # vulnerabilities
         print_info()
-        print("input the condtion : (+,-,*) choose one of three ")
+        print("input the condition : (+,-,*) choose one of three ")
         cond = input()
         dic = {}
         dic['condition'] = cond
-        
+
         print_info("\033[94m[*]\033[0m", "Starting vulnerablity check...".format(self.target))
 
         modules = []
@@ -134,7 +134,7 @@ class Exploit(Exploit):
                     print_info("\033[91m[-]\033[0m", "{}:{} {} {} is not vulnerable".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
                 else:
-                    if dic['condition'] == "*": 
+                    if dic['condition'] == "*":
                     	print_info("\033[94m[*]\033[0m", "{}:{} {} {} Could not be verified".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
                     	self.not_verified.append((exploit.target, exploit.port, exploit.target_protocol, str(exploit)))
