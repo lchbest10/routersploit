@@ -5,6 +5,7 @@ import itertools
 import os
 import sys
 import traceback
+import socket
 from collections import Counter
 
 from future.builtins import input
@@ -344,8 +345,13 @@ class RoutersploitInterpreter(BaseInterpreter):
     @module_required
     def command_set(self, *args, **kwargs):
         key, _, value = args[0].partition(" ")
+
+        print(value)
+
         if key in self.current_module.options:
             setattr(self.current_module, key, value)
+            if value=="localip":
+                value="192.168.1.1"
             self.current_module.exploit_attributes[key][0] = value
 
             if kwargs.get("glob", False):
