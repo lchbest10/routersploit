@@ -1,6 +1,7 @@
 from os import path
 from routersploit.core.exploit import *
 from routersploit.core.exploit.exploit import Protocol
+import datetime
 
 
 class Exploit(Exploit):
@@ -14,7 +15,6 @@ class Exploit(Exploit):
             "Multi",
         ),
     }
-
     modules = ["generic", "routers", "cameras", "misc"]
 
     target = OptIP("", "Target IPv4 or IPv6 address")
@@ -31,6 +31,8 @@ class Exploit(Exploit):
     threads = OptInteger(8, "Number of threads")
 
     def __init__(self):
+        self.weak = 0
+        self.safe = 0
         self.vulnerabilities = []
         self.creds = []
         self.not_verified = []
@@ -85,16 +87,25 @@ class Exploit(Exploit):
             headers = ("Target", "Port", "Service", "Exploit")
             print_table(headers, *self.vulnerabilities)
             print_info()
+            self.weak += 1
         else:
             print_info("\033[91m[-]\033[0m", "{} Could not confirm any vulnerablity\n".format(self.target))
+            self.safe += 1
 
         if self.creds:
             print_info("\033[92m[+]\033[0m", "{} Found default credentials:".format(self.target))
             headers = ("Target", "Port", "Service", "Username", "Password")
             print_table(headers, *self.creds)
             print_info()
+            self.weak += 1
         else:
             print_info("\033[91m[-]\033[0m", "{} Could not find default credentials".format(self.target))
+            self.safe += 1
+
+        filename = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        f = open(filename + ".txt","w")
+        f.write("There is {} safes and {} vulnerabilities".format(self.safe,self.weak))
+
 
     def exploits_target_function(self, running, data, dic):
         while running.is_set():
@@ -196,3 +207,5 @@ class Exploit(Exploit):
                     if dic['condition'] == "-":
                     	print_info("\033[91m[-]\033[0m", "{}:{} {} {} is not vulnerable".format(
                                exploit.target, exploit.port, exploit.target_protocol, exploit))
+
+
